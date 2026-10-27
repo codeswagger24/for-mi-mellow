@@ -33,10 +33,68 @@
     cursor: grab;
   }
   canvas.grabbing { cursor: grabbing; }
+
+  /* "turn me sideways" card - only on phones / narrow screens held in portrait */
+  #rotate-hint {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 24px;
+    background: rgba(4, 6, 12, 0.93);
+    color: rgb(228, 228, 70);
+    font: 17px Verdana, "DejaVu Sans", sans-serif;
+    letter-spacing: 1px;
+    pointer-events: none;              /* never blocks dragging the galaxy */
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  #rotate-hint .phone {
+    width: 34px; height: 58px;
+    box-sizing: border-box;
+    border: 3px solid rgb(228, 228, 70);
+    border-radius: 7px;
+    margin-bottom: 26px;
+    animation: rotatePhone 2.6s ease-in-out infinite;
+  }
+  #rotate-hint .phone::after {
+    content: "";
+    display: block;
+    width: 12px; height: 3px;
+    margin: 45px auto 0;
+    border-radius: 2px;
+    background: rgb(228, 228, 70);
+    opacity: 0.7;
+  }
+  #rotate-hint p { margin: 0 0 10px; font-size: 18px; }
+  #rotate-hint small {
+    font-size: 13px;
+    color: rgb(176, 176, 160);
+    letter-spacing: 0.5px;
+    line-height: 1.6;
+  }
+  @keyframes rotatePhone {
+    0%, 22%  { transform: rotate(0deg); }
+    50%, 74% { transform: rotate(-90deg); }
+    100%     { transform: rotate(0deg); }
+  }
+  /* only on a phone (touch device) held in portrait - desktops are left alone */
+  @media (orientation: portrait) and (pointer: coarse) {
+    #rotate-hint { display: flex; }
+  }
 </style>
 </head>
 <body>
 <canvas id="sky" width="1000" height="800"></canvas>
+<div id="rotate-hint" aria-hidden="true">
+  <div class="phone"></div>
+  <p>Rotate your phone to landscape</p>
+  <small>The galaxy fills the screen sideways<br>and the drag controls feel natural.</small>
+</div>
 <script>
 "use strict";
 

@@ -1012,6 +1012,21 @@ function start() {
     if (intro_t < INTRO) { view.reset(); ease = 1.0; intro_t = INTRO; }
   };
 
+  // Browsers normally block audio until the first click/keypress, so try to start right away
+  // (some allow it) and, when blocked, show a small hint until the first interaction.
+  ensureAudio();
+  window.addEventListener("pointerdown", ensureAudio);
+  const hint = document.createElement("div");
+  hint.textContent = "\u266A click anywhere for music";
+  hint.style.cssText = "position:fixed;left:50%;bottom:20px;transform:translateX(-50%);" +
+    "color:rgba(232,232,120,.85);font:13px Verdana, 'DejaVu Sans', sans-serif;letter-spacing:2px;" +
+    "pointer-events:none;text-shadow:0 1px 4px #000;opacity:0;transition:opacity .9s ease;z-index:10;";
+  document.body.appendChild(hint);
+  let hintShown = false;
+  setTimeout(() => {
+    if (AC && AC.state !== "running" && !muted) { hint.style.opacity = "1"; hintShown = true; }
+  }, 2500);
+
   canvas.addEventListener("pointerdown", e => {
     ensureAudio();
     skipIntro();
@@ -1136,6 +1151,8 @@ function start() {
       ctx.drawImage(text, 0, (H * 0.36) | 0);
       ctx.globalAlpha = 1;
     }
+
+    if (hintShown && AC && AC.state === "running") { hint.style.opacity = "0"; hintShown = false; }
 
     // adaptive detail: keep the frame rate smooth on slower computers
     avgMs = avgMs * 0.93 + dt * 1000 * 0.07;
